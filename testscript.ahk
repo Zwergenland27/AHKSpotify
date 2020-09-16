@@ -5,6 +5,12 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #MaxThreadsPerHotkey, 2
 ^m::
 toggle := !toggle
+If (toggle){
+    MsgBox, 0, Spotify Hack, muting advertisements enabled
+}
+Else{
+     MsgBox, 0, Spotify Hack, muting advertisements disabled
+}
     Loop {
         if (toggle){
             WinGetTitle, title, A
@@ -42,5 +48,13 @@ toggle := !toggle
         }else{
             break
         }
+    }
+return
+^+m::
+    If (toggle){
+        MsgBox, 0, Spotify Hack, muting advertisements enabled
+    }
+    Else{
+        MsgBox, 0, Spotify Hack, muting advertisementse disabled
     }
 return
