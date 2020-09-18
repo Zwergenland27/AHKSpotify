@@ -25,7 +25,6 @@ else{
                 }
             if (oldtitle != nowtitle){
                 WinGet, pid, PID, ahk_exe spotify.exe
-                MsgBox, %camefrommute%
                 if (pid != 0){
                     if WinExist("Spotify Free") || WinExist("Advertisement") || WinExist("Spotify"){
                         WinActivate
