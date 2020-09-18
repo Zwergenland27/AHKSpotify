@@ -35,7 +35,6 @@ else{
                         camefrommute := True
                     }
                     else{
-                         MsgBox, %camefrommute%
                         if (camefrommute){
                             WinActivate, %title2%
                             Send, {CtrlDown} {ShiftDown} {UP} {ShiftUp} {CtrlUp}
