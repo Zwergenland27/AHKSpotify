@@ -3,3 +3,4 @@
 - unmutes with macro Ctrl + Shift + Up
 - automatically changes back to window which was in focus before
 - enable / disable with Ctrl + m
+- get status with Ctrl + Shift + m
