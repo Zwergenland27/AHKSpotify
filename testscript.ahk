@@ -3,7 +3,7 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #MaxThreadsPerHotkey, 2
-camefrommute = False
+camefrommute := True
 ^m::
 toggle := !toggle
 if (toggle){
@@ -32,18 +32,21 @@ else{
                         Send, {CtrlDown} {ShiftDown} {Down} {ShiftUp} {CtrlUp}
                         Sleep, 1
                         WinActivate, %title%
-                        camefrommute = True
+                        camefrommute := True
                     }
-                    else if (camefrommute){
-                        WinActivate, %title2%
-                        Send, {CtrlDown} {ShiftDown} {UP} {ShiftUp} {CtrlUp}
-                        Sleep, 50                                               ;dont know why, but spotify seems to be slow when unmuting, song is still muted but show thats its unmuted -> timeout, little volume change will fix it
-                        Send, {CtrlDown} {DOWN} {CtrlUp}
-                        Sleep, 50
-                        Send, {CtrlDown} {UP} {CtrlUp}
-                        Sleep, 1
-                        WinActivate, %title%
-                        camefrommute = False
+                    else{
+                         MsgBox, %camefrommute%
+                        if (camefrommute){
+                            WinActivate, %title2%
+                            Send, {CtrlDown} {ShiftDown} {UP} {ShiftUp} {CtrlUp}
+                            Sleep, 50                                               ;dont know why, but spotify seems to be slow when unmuting, song is still muted but show thats its unmuted -> timeout, little volume change will fix it
+                            Send, {CtrlDown} {DOWN} {CtrlUp}
+                            Sleep, 50
+                            Send, {CtrlDown} {UP} {CtrlUp}
+                            Sleep, 1
+                            WinActivate, %title%
+                            camefrommute := False
+                        }
                     }
                 }
                 oldtitle = %title2%
