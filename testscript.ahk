@@ -2,18 +2,20 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-#MaxThreadsPerHotkey, 2
 
 global guiopened := False
 global camefrommute := True
-global nowtitle := "null"
+global autoMuteEnabled := False
+global nowtitle := ""
 
-Gui, -Caption +LastFound +AlwaysOnTop
+Gui, -Caption +LastFound +AlwaysOnTop +ToolWindow
 GUI, Color, FFFFFF
 ;WinSet, TransColor, FFFFFF 255
 
-GUI, Font, s20 W600
-Gui, Add, Text, vTitle, Spotify Hack
+GUI, Font, s14 W600
+Gui, Add, Text, , Spotify Hack
+
+SetTimer, GetTitle, 10
 
 #IfWinNotExist, AHKSpot
 ^g::    ;shows GUI
@@ -34,69 +36,25 @@ return
 
 #IfWinExist
 ^m::
-toggle := !toggle
-if (!guiopened){
-    if (toggle){
-        MsgBox, 0, AHKSpot, muting advertisements enabled
-    }
-    else{
-        MsgBox, 0, AHKSpot, muting advertisements disabled
-    }
-}
-    loop {
-        if (toggle){
-            WinGet, id, list, ahk_exe spotify.exe
-            loop, %id%{
-                this_ID := id%A_Index%
-                WinGetTitle, title2, ahk_id %this_ID%
-                if (title2 != "" && title2 != "G" && title2 != "CspNotify Notify Window" && title2 != "MSCTFIME UI" && title2 != "Default IME"){ ;some other random titles in spotify.exe
-                    nowtitle := title2
-                }
-            }
-            WinGetTitle, title, A
-            if (oldtitle != nowtitle){
-                ChangeText(nowtitle)
-                Gui, Show, AutoSize, AHKSpot
-                WinGet, pid, PID, ahk_exe spotify.exe
-                if (pid != 0){
-                    if WinExist("Spotify Free") || WinExist("Advertisement") || WinExist("Spotify"){
-                        Gui, Show, AutoSize, AHKSpot
-                        WinActivate
-                        Send, {CtrlDown} {ShiftDown} {Down} {ShiftUp} {CtrlUp}
-                        Sleep, 1
-                        WinActivate, %title%
-                        camefrommute := True
-                    }
-                    else{
-                        if (camefrommute){
-                            WinActivate, %nowtitle%
-                            Send, {CtrlDown} {ShiftDown} {UP} {ShiftUp} {CtrlUp}
-                            Sleep, 50                                               ;dont know why, but spotify seems to be slow when unmuting, song is still muted but show thats its unmuted -> timeout, little volume change will fix it
-                            Send, {CtrlDown} {DOWN} {CtrlUp}
-                            Sleep, 50
-                            Send, {CtrlDown} {UP} {CtrlUp}
-                            Sleep, 1
-                            WinActivate, %title%
-                            camefrommute := False
-                        }
-                    }
-                }
-                oldtitle = %nowtitle%
-            }
+autoMuteEnabled := !autoMuteEnabled
+    if (!guiopened){
+        if (autoMuteEnabled){
+            MsgBox, 0, AHKSpot, muting advertisements enabled
         }
         else{
-            break
+            MsgBox, 0, AHKSpot, muting advertisements disabled
         }
     }
+    ChangeText(nowtitle)
 return
 
 #IfWinNotExist, AHKSpot
 ^+m::
-    if (toggle){
+    if (autoMuteEnabled){
         MsgBox, 0, AHKSpot, muting advertisements enabled
     }
     else{
-        MsgBox, 0, AHKSpot, muting advertisementse disabled
+        MsgBox, 0, AHKSpot, muting advertisements disabled
     }
 return
 
@@ -129,19 +87,79 @@ WatchMouse:
     WinMove, AHKSpot, , x, y
 return
 
+GetTitle:
+    WinGet, id, list, ahk_exe spotify.exe
+    loop, %id%{
+        this_ID := id%A_Index%
+        WinGetTitle, title2, ahk_id %this_ID%
+        if (title2 != "" && title2 != "G" && title2 != "CspNotify Notify Window" && title2 != "MSCTFIME UI" && title2 != "Default IME"){ ;some other random titles in spotify.exe
+            nowtitle := title2
+        }
+    }
+    if (nowtitle != oldtitle){
+        WinGetTitle, scrProgramTitle, A
+        if (guiopened){
+            if (autoMuteEnabled){
+                ChangeText(nowtitle)
+            }else{
+                ChangeText(nowtitle)
+            }
+        }
+        if (autoMuteEnabled){
+            AutoMute(nowtitle, scrProgramTitle)
+        }
+        oldtitle := nowtitle
+    }
+return
+
+AutoMute(nowtitle, scrProgramTitle){
+    WinGet, pid, PID, ahk_exe spotify.exe
+    if (pid != 0){
+        if WinExist("Spotify Free") || WinExist("Advertisement") || WinExist("Spotify"){
+            WinActivate
+            Send, {CtrlDown} {ShiftDown} {Down} {ShiftUp} {CtrlUp}
+            Sleep, 1
+            WinActivate, %scrProgramTitle%
+            camefrommute := True
+        }else{
+            if (camefrommute){
+                WinActivate, %nowtitle%
+                Send, {CtrlDown} {ShiftDown} {UP} {ShiftUp} {CtrlUp}
+                Sleep, 50                                               ;dont know why, but spotify seems to be slow when unmuting, song is still muted but show thats its unmuted -> timeout, little volume change will fix it
+                Send, {CtrlDown} {DOWN} {CtrlUp}
+                Sleep, 50
+                Send, {CtrlDown} {UP} {CtrlUp}
+                Sleep, 1
+                WinActivate, %scrProgramTitle%
+                camefrommute := False
+            }
+        }
+    }
+    return
+}
+
 ChangeText(title){
     GUI +LastFound
     WinGetPos x, y, w
     xe := x + w
     GUI Destroy
-    Gui, -Caption +LastFound +AlwaysOnTop
+   Gui, -Caption +LastFound +AlwaysOnTop +ToolWindow
     GUI, Color, FFFFFF
     ;WinSet, TransColor, FFFFFF 255
 
-    GUI, Font, s20 W600
-    Gui, Add, Text, , %title%
+    GUI, Font, s14 W600
+    if (autoMuteEnabled){
+        Gui, Add, Text, , AM %title%
+    }else{
+        Gui, Add, Text, , %title%
+    }
+    
     GUI, Show, x%x% y%y% AutoSize, AHKSpot
     WinGetPos x, y2, w
     xb := xe - w
     GUI, Show, x%xb% y%y% AutoSize, AHKSpot
+    if not (guiopened){
+        GUI, Show, Hide
+    }
+    return
 }
