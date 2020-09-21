@@ -104,15 +104,17 @@ GetTitle:
             }else{
                 ChangeText(nowtitle)
             }
+            WinActivate, %scrProgramTitle%
         }
         if (autoMuteEnabled){
-            AutoMute(nowtitle, scrProgramTitle)
+            AutoMute(nowtitle)
         }
         oldtitle := nowtitle
     }
 return
 
-AutoMute(nowtitle, scrProgramTitle){
+AutoMute(nowtitle){
+    WinGetTitle, scrProgramTitle, A
     WinGet, pid, PID, ahk_exe spotify.exe
     if (pid != 0){
         if WinExist("Spotify Free") || WinExist("Advertisement") || WinExist("Spotify"){
