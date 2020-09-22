@@ -60,7 +60,7 @@ return
 
 #IfWinExist
 ^!r::       ;reload script
-    Run, testscript.ahk
+    Run, AHKSpot.ahk
 return
 
 #IfWinActive, AHKSpot
